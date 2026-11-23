@@ -50,7 +50,7 @@ footer{border-top:1px solid var(--line);padding:38px 0;color:#687487;font-size:1
 </main>
 <footer><div class="wrap foot"><div><strong>DASMA GAMEHUB</strong><br>Discover. Collect. Play.<br><br>© 2026 DASMA GAMEHUB. All rights reserved.</div><div><strong>NEED HELP?</strong><br><a href="#" onclick="alert('Add your Facebook page or Messenger link here.');return false">Contact us</a><a href="#shop">Shop</a><a href="#about">About</a><p>Dasmariñas, Cavite, Philippines</p></div></div></footer>
 <script>
-const products=[
+let products=[
 {id:1,name:"PlayStation 5 DualSense Controller",cat:"Accessories",price:3495,condition:"Pre-owned · Tested",tag:"FEATURED",shopeeUrl:"",img:"https://images.unsplash.com/photo-1606813907291-d86efa9b94db?auto=format&fit=crop&w=700&q=85"},
 {id:2,name:"PlayStation 2 Console Bundle",cat:"Retro",price:3295,condition:"Pre-owned · Tested",tag:"RETRO PICK",shopeeUrl:"",img:"https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?auto=format&fit=crop&w=700&q=85"},
 {id:3,name:"Nintendo Switch Console",cat:"Nintendo",price:8995,condition:"Pre-owned · Tested",tag:"COLLECTOR FIND",shopeeUrl:"",img:"https://images.unsplash.com/photo-1578303512597-81e6cc155b3e?auto=format&fit=crop&w=700&q=85"},
@@ -67,7 +67,7 @@ function render(){
  let list=products.filter(p=>(category==="All"||p.cat===category)&&p.name.toLowerCase().includes(document.getElementById("search").value.toLowerCase()));
  let sort=document.getElementById("sort").value;
  if(sort==="low")list.sort((a,b)=>(a.price??Infinity)-(b.price??Infinity));if(sort==="high")list.sort((a,b)=>(b.price??-Infinity)-(a.price??-Infinity));if(sort==="az")list.sort((a,b)=>a.name.localeCompare(b.name));
- document.getElementById("products").innerHTML=list.length?list.map(p=>`<article class="product"><div class="product-img"><span class="tag">${p.tag}</span><img src="${p.img}" alt="${p.name}" onerror="this.style.display='none';this.parentElement.insertAdjacentHTML('beforeend','<span style=&quot;font-size:48px&quot;>🎮</span>')"></div><div class="product-body"><div class="product-cat">${p.cat}</div><h3>${p.name}</h3><div class="condition">${p.condition} · Stock to be confirmed</div><div class="price-row"><span class="price">${p.price ? peso(p.price) : "SEE SHOPEE"}</span><button class="add" onclick="buyNow(${p.id})">BUY ON SHOPEE ↗</button></div></div></article>`).join(""):'<div class="empty">No products found. Try another search or category.</div>';
+ document.getElementById("products").innerHTML=list.length?list.map(p=>`<article class="product"><div class="product-img"><span class="tag">${p.tag}</span><img src="${p.img}" alt="${p.name}" onerror="this.style.display='none';this.parentElement.insertAdjacentHTML('beforeend','<span style=&quot;font-size:48px&quot;>🎮</span>')"></div><div class="product-body"><div class="product-cat">${p.cat}</div><h3>${p.name}</h3><div class="condition">${p.condition} · ${p.stock_status === "sold_out" ? "SOLD OUT" : p.stock_status === "reserved" ? "RESERVED" : "IN STOCK"}</div><div class="price-row"><span class="price">${p.price ? peso(p.price) : "SEE SHOPEE"}</span><button class="add" onclick="buyNow(${p.id})">BUY ON SHOPEE ↗</button></div></div></article>`).join(""):'<div class="empty">No products found. Try another search or category.</div>';
 }
 document.getElementById("chips").addEventListener("click",e=>{if(!e.target.dataset.cat)return;category=e.target.dataset.cat;document.querySelectorAll(".chip").forEach(x=>x.classList.toggle("active",x===e.target));render()});
 document.getElementById("search").addEventListener("input",render);document.getElementById("sort").addEventListener("change",render);
@@ -82,4 +82,252 @@ function openShopeeStore(event){
 }
 render();
 </script>
+
+<style>
+#adminPanel{position:fixed;inset:0;z-index:100;background:#e9edf2;display:none;overflow:auto;color:#202633}
+#adminPanel.show{display:block}
+.admin-wrap{max-width:1100px;margin:0 auto;padding:28px 20px}
+.admin-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:22px}
+.admin-card{background:#fff;border:1px solid #d7dde6;border-radius:14px;padding:20px;margin:14px 0}
+.admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.admin-field{display:flex;flex-direction:column;gap:6px;margin:9px 0}
+.admin-field.full{grid-column:1/-1}
+.admin-field label{font-size:12px;font-weight:800;color:#586477}
+.admin-field input,.admin-field select,.admin-field textarea{width:100%;padding:11px;border:1px solid #cbd4df;border-radius:8px;background:#fff;color:#202633}
+.admin-field textarea{min-height:100px;resize:vertical}
+.admin-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.admin-table{width:100%;border-collapse:collapse;font-size:13px}
+.admin-table th,.admin-table td{padding:10px;border-bottom:1px solid #e3e8ef;text-align:left}
+.admin-table button{margin:2px}
+.admin-status{font-size:13px;color:#526071;margin:8px 0}
+.admin-hidden{display:none!important}
+@media(max-width:650px){.admin-grid{grid-template-columns:1fr}.admin-field.full{grid-column:auto}.admin-table{font-size:11px}.admin-table th,.admin-table td{padding:7px}}
+</style>
+<div id="adminPanel" aria-modal="true" role="dialog">
+  <div class="admin-wrap">
+    <div class="admin-top">
+      <div><div class="eyebrow">DASMA GAMEHUB</div><h1 style="margin:4px 0">Store Admin</h1><div class="muted">Manage products, photos, descriptions and stock.</div></div>
+      <div class="admin-actions"><button class="btn secondary" id="adminClose">← Back to store</button><button class="btn secondary admin-hidden" id="adminLogout">Sign out</button></div>
+    </div>
+    <div id="adminStatus" class="admin-status">Connecting to the store database…</div>
+    <section id="adminLogin" class="admin-card admin-hidden">
+      <h2 style="margin-top:0">Admin sign in</h2>
+      <p class="muted">Use the email and password for the admin account you created in Supabase Authentication.</p>
+      <div class="admin-field"><label>Email address</label><input id="adminEmail" type="email" autocomplete="username" placeholder="Your admin email"></div>
+      <div class="admin-field"><label>Password</label><input id="adminPassword" type="password" autocomplete="current-password" placeholder="Your password"></div>
+      <button class="btn" id="adminLoginBtn">SIGN IN</button>
+    </section>
+    <section id="adminDashboard" class="admin-hidden">
+      <div class="admin-card">
+        <h2 id="productFormTitle" style="margin-top:0">Add a product</h2>
+        <form id="productForm">
+          <input type="hidden" id="productId">
+          <div class="admin-grid">
+            <div class="admin-field"><label>Product name *</label><input id="pName" required maxlength="180" placeholder="e.g. Shadows of the Damned — PS3"></div>
+            <div class="admin-field"><label>Platform</label><input id="pPlatform" placeholder="e.g. PlayStation 3"></div>
+            <div class="admin-field"><label>Category</label><select id="pCategory"><option>PlayStation</option><option>Xbox</option><option>Nintendo</option><option>Retro</option><option>Accessories</option><option>Consoles</option><option>Other</option></select></div>
+            <div class="admin-field"><label>Price (PHP)</label><input id="pPrice" type="number" min="0" step="0.01" placeholder="Leave blank if price is on Shopee"></div>
+            <div class="admin-field"><label>Condition</label><select id="pCondition"><option value="pre_owned">Pre-owned</option><option value="new">New</option><option value="for_parts">For parts / repair</option></select></div>
+            <div class="admin-field"><label>Stock status</label><select id="pStock"><option value="in_stock">In stock</option><option value="reserved">Reserved</option><option value="sold_out">Sold out</option></select></div>
+            <div class="admin-field"><label>Quantity</label><input id="pQuantity" type="number" min="0" step="1" value="1"></div>
+            <div class="admin-field"><label>Shopee product URL</label><input id="pShopee" type="url" placeholder="https://shopee.ph/..."></div>
+            <div class="admin-field full"><label>Description</label><textarea id="pDescription" placeholder="Describe the item, condition, included accessories, region, etc."></textarea></div>
+            <div class="admin-field full"><label>Product photos (you can select multiple)</label><input id="pPhotos" type="file" accept="image/*" multiple><small class="muted">JPG, PNG or WebP recommended. Photos upload to the product-photos bucket.</small></div>
+            <div class="admin-field"><label><input id="pFeatured" type="checkbox"> Feature this product</label></div>
+            <div class="admin-field"><label><input id="pPublished" type="checkbox" checked> Publish on storefront</label></div>
+          </div>
+          <div class="admin-actions"><button class="btn" type="submit" id="saveProductBtn">SAVE PRODUCT</button><button class="btn secondary" type="button" id="resetProductBtn">CLEAR FORM</button></div>
+        </form>
+      </div>
+      <div class="admin-card">
+        <h2 style="margin-top:0">Your products</h2>
+        <div style="overflow-x:auto"><table class="admin-table"><thead><tr><th>Product</th><th>Price</th><th>Stock</th><th>Published</th><th>Actions</th></tr></thead><tbody id="adminProductRows"><tr><td colspan="5">Loading products…</td></tr></tbody></table></div>
+      </div>
+    </section>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(() => {
+  const SUPABASE_URL = "https://prdepklmawvbqotbirtg.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_NIBA1Fv8mQmd9zAlqzvSKQ_ZVFbxBW8";
+  const BUCKET = "product-photos";
+  const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  const panel = document.getElementById("adminPanel");
+  const statusEl = document.getElementById("adminStatus");
+  const loginBox = document.getElementById("adminLogin");
+  const dashboard = document.getElementById("adminDashboard");
+  let currentUser = null;
+
+  const $ = id => document.getElementById(id);
+  const escapeHtml = value => String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const slugify = value => value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"") || "product";
+  const peso = value => value == null ? "SEE SHOPEE" : "₱" + Number(value).toLocaleString("en-PH");
+
+  function setStatus(message, isError=false) {
+    statusEl.textContent = message;
+    statusEl.style.color = isError ? "#c53030" : "#526071";
+  }
+  function showLogin(message) {
+    loginBox.classList.remove("admin-hidden");
+    dashboard.classList.add("admin-hidden");
+    $("adminLogout").classList.add("admin-hidden");
+    setStatus(message || "Please sign in with your store admin account.");
+  }
+  async function checkAdmin() {
+    const {data:{user}, error} = await client.auth.getUser();
+    if (error || !user) { currentUser=null; showLogin("Sign in to manage the store."); return false; }
+    currentUser=user;
+    const {data, error:adminError} = await client.from("store_admins").select("user_id").eq("user_id",user.id).maybeSingle();
+    if (adminError || !data) {
+      showLogin("This account is not registered as a store admin. Check the store_admins record and its SELECT policy.");
+      return false;
+    }
+    loginBox.classList.add("admin-hidden");
+    dashboard.classList.remove("admin-hidden");
+    $("adminLogout").classList.remove("admin-hidden");
+    setStatus("Signed in as " + user.email);
+    await refreshAdminProducts();
+    return true;
+  }
+
+  async function getProducts() {
+    const {data, error} = await client.from("products").select("*").eq("is_published",true).order("created_at",{ascending:false});
+    if (error) throw error;
+    const rows = data || [];
+    if (!rows.length) return [];
+    const ids = rows.map(p=>p.id);
+    const {data:images, error:imageError} = await client.from("product_images").select("*").in("product_id",ids).order("sort_order",{ascending:true});
+    if (imageError) console.warn("Could not load product image records:", imageError.message);
+    const grouped = {};
+    (images || []).forEach(im => {
+      const {data:{publicUrl}} = client.storage.from(BUCKET).getPublicUrl(im.storage_path);
+      (grouped[im.product_id] ||= []).push(publicUrl);
+    });
+    return rows.map(p => ({
+      id:p.id, name:p.name, cat:p.category || p.platform || "Other",
+      price:p.price == null ? null : Number(p.price),
+      condition:p.condition === "new" ? "New" : p.condition === "for_parts" ? "For parts / repair" : "Pre-owned",
+      tag:p.is_featured ? "FEATURED" : (p.stock_status === "sold_out" ? "SOLD OUT" : "DASMA FIND"),
+      shopeeUrl:p.shopee_url || "", img:(grouped[p.id] || [])[0] || "",
+      stock_status:p.stock_status, quantity:p.quantity, description:p.description || ""
+    }));
+  }
+  async function loadStorefront() {
+    try {
+      const live = await getProducts();
+      products = live;
+      render();
+    } catch (error) {
+      console.error(error);
+      setStatus("Storefront could not load products from Supabase: " + error.message, true);
+    }
+  }
+  async function refreshAdminProducts() {
+    const tbody=$("adminProductRows");
+    tbody.innerHTML='<tr><td colspan="5">Loading…</td></tr>';
+    const {data,error}=await client.from("products").select("*").order("created_at",{ascending:false});
+    if(error){tbody.innerHTML='<tr><td colspan="5">Could not load: '+escapeHtml(error.message)+'</td></tr>';return;}
+    if(!data.length){tbody.innerHTML='<tr><td colspan="5">No products yet. Add your first game above.</td></tr>';return;}
+    tbody.innerHTML=data.map(p=>`<tr>
+      <td><b>${escapeHtml(p.name)}</b><br><small>${escapeHtml(p.platform||p.category||"")}</small></td>
+      <td>${escapeHtml(peso(p.price))}</td><td>${escapeHtml(p.stock_status)} (${p.quantity})</td>
+      <td>${p.is_published?"Yes":"No"}</td>
+      <td><button class="chip" data-edit="${p.id}">Edit</button><button class="chip" data-toggle="${p.id}" data-published="${p.is_published}">${p.is_published?"Unpublish":"Publish"}</button></td>
+    </tr>`).join("");
+  }
+  function resetForm() {
+    $("productForm").reset(); $("productId").value=""; $("pQuantity").value="1";
+    $("productFormTitle").textContent="Add a product"; $("saveProductBtn").textContent="SAVE PRODUCT";
+  }
+  async function editProduct(id) {
+    const {data:p,error}=await client.from("products").select("*").eq("id",id).single();
+    if(error){setStatus(error.message,true);return;}
+    $("productId").value=p.id; $("pName").value=p.name||""; $("pPlatform").value=p.platform||"";
+    $("pCategory").value=p.category||"Other"; $("pPrice").value=p.price??"";
+    $("pCondition").value=p.condition||"pre_owned"; $("pStock").value=p.stock_status||"in_stock";
+    $("pQuantity").value=p.quantity??1; $("pShopee").value=p.shopee_url||"";
+    $("pDescription").value=p.description||""; $("pFeatured").checked=!!p.is_featured;
+    $("pPublished").checked=!!p.is_published; $("pPhotos").value="";
+    $("productFormTitle").textContent="Edit product"; $("saveProductBtn").textContent="UPDATE PRODUCT";
+    $("productFormTitle").scrollIntoView({behavior:"smooth",block:"center"});
+  }
+  async function saveProduct(event) {
+    event.preventDefault();
+    const id=$("productId").value;
+    const name=$("pName").value.trim();
+    if(!name){setStatus("Please enter a product name.",true);return;}
+    const record={
+      name, slug:slugify(name), platform:$("pPlatform").value.trim()||null,
+      category:$("pCategory").value, description:$("pDescription").value.trim()||null,
+      price:$("pPrice").value===""?null:Number($("pPrice").value),
+      condition:$("pCondition").value, stock_status:$("pStock").value,
+      quantity:Math.max(0,Number($("pQuantity").value)||0),
+      shopee_url:$("pShopee").value.trim()||null,
+      is_featured:$("pFeatured").checked, is_published:$("pPublished").checked
+    };
+    $("saveProductBtn").disabled=true; setStatus("Saving product and uploading photos…");
+    try {
+      let productId=id;
+      if(id) {
+        const {error}=await client.from("products").update(record).eq("id",id);
+        if(error) throw error;
+      } else {
+        const {data,error}=await client.from("products").insert(record).select("id").single();
+        if(error) throw error; productId=data.id;
+      }
+      const files=Array.from($("pPhotos").files||[]);
+      for(let i=0;i<files.length;i++){
+        const file=files[i];
+        if(!file.type.startsWith("image/")) continue;
+        const safeName=file.name.replace(/[^a-zA-Z0-9._-]/g,"-");
+        const path=productId+"/"+Date.now()+"-"+i+"-"+safeName;
+        const {error:uploadError}=await client.storage.from(BUCKET).upload(path,file,{upsert:false,contentType:file.type});
+        if(uploadError) throw uploadError;
+        const {error:rowError}=await client.from("product_images").insert({
+          product_id:productId, storage_path:path, alt_text:name, sort_order:i
+        });
+        if(rowError) throw rowError;
+      }
+      resetForm(); await refreshAdminProducts(); await loadStorefront();
+      setStatus("Product saved. Your storefront has been refreshed.");
+    } catch(error) {
+      setStatus("Save failed: "+error.message,true);
+    } finally {$("saveProductBtn").disabled=false;}
+  }
+
+  $("adminOpen").addEventListener("click",async()=>{panel.classList.add("show");await checkAdmin();});
+  $("adminClose").addEventListener("click",()=>panel.classList.remove("show"));
+  $("adminLoginBtn").addEventListener("click",async()=>{
+    const email=$("adminEmail").value.trim(), password=$("adminPassword").value;
+    setStatus("Signing in…");
+    const {error}=await client.auth.signInWithPassword({email,password});
+    if(error){setStatus("Sign-in failed: "+error.message,true);return;}
+    await checkAdmin();
+  });
+  $("adminLogout").addEventListener("click",async()=>{await client.auth.signOut();showLogin("You have signed out.");});
+  $("productForm").addEventListener("submit",saveProduct);
+  $("resetProductBtn").addEventListener("click",resetForm);
+  $("adminProductRows").addEventListener("click",async e=>{
+    const edit=e.target.dataset.edit, toggle=e.target.dataset.toggle;
+    if(edit) await editProduct(edit);
+    if(toggle){
+      const publish=e.target.dataset.published!=="true";
+      const {error}=await client.from("products").update({is_published:publish}).eq("id",toggle);
+      if(error)setStatus(error.message,true);else{await refreshAdminProducts();await loadStorefront();setStatus("Product visibility updated.");}
+    }
+  });
+
+  window.buyNow = function(id) {
+    const p=products.find(x=>String(x.id)===String(id));
+    if(!p)return;
+    if(p.stock_status==="sold_out" || p.stock_status==="reserved"){alert("This item is currently "+p.stock_status.replace("_"," ")+".");return;}
+    if(!p.shopeeUrl){alert("This product does not have an individual Shopee listing link yet.");return;}
+    window.open(p.shopeeUrl,"_blank","noopener");
+  };
+  window.addEventListener("DOMContentLoaded",loadStorefront);
+  loadStorefront();
+})();
+</script>
+
 </body></html>
