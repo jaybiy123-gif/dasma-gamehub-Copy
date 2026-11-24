@@ -20,6 +20,28 @@ footer{border-top:1px solid var(--line);padding:38px 0;color:#687487;font-size:1
 .overlay{position:fixed;inset:0;background:#0009;z-index:20;display:none}.overlay.show{display:block}.drawer{position:absolute;right:0;top:0;height:100%;width:min(440px,100%);background:#f8fafc;color:#202633;border-left:1px solid var(--line);padding:24px;display:flex;flex-direction:column}.drawer-head{display:flex;justify-content:space-between;align-items:center}.drawer-items{overflow:auto;flex:1;margin:18px 0}.cart-item{display:grid;grid-template-columns:65px 1fr auto;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);align-items:center}.cart-item img{width:65px;height:65px;object-fit:contain;background:#e5eaf0;border-radius:8px}.cart-item b{font-size:12px}.cart-item small{display:block;color:var(--muted)}.qty{display:flex;gap:7px;align-items:center;margin-top:6px}.qty button{background:#dce3ec;color:#202633;border:0;border-radius:5px;width:23px;height:23px}.total{border-top:1px solid var(--line);padding-top:16px}.total-line{display:flex;justify-content:space-between;margin:7px 0}.checkout{width:100%;justify-content:center;margin-top:12px}.modal{position:fixed;z-index:30;inset:0;background:#000b;display:none;place-items:center;padding:18px}.modal.show{display:grid}.modal-box{width:min(520px,100%);background:#f8fafc;color:#202633;border:1px solid var(--line);border-radius:18px;padding:24px}.modal-box input,.modal-box textarea{width:100%;background:#fff;border:1px solid var(--line);border-radius:9px;color:#202633;padding:12px;margin:7px 0 13px}.modal-box label{font-size:12px;color:#586477}.notice{font-size:11px;color:var(--muted);margin-top:12px}
 @media(max-width:900px){.links{display:none}.grid{grid-template-columns:repeat(2,1fr)}.hero-content{padding:36px;max-width:550px}.hero-art{opacity:.45;width:65%;right:-8%}.trust{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:560px){.wrap{padding:0 15px}.nav{height:65px}.brand{font-size:17px}.nav-actions .iconbtn:first-child{display:none}.hero{padding-top:20px}.hero-card{min-height:460px}.hero-content{padding:25px}.hero-art{width:100%;height:54%;top:43%;right:-8%;opacity:.4}.hero-card:after{background:linear-gradient(180deg,#e4e9eff7 0%,#e4e9efe8 45%,#e4e9ef80 100%)}.hero h1{font-size:46px}.trust{gap:8px}.trust div{padding:11px}.section h2{font-size:23px}.grid{gap:10px}.product-img{height:205px}.product-img img{padding:7px}.product-body{padding:12px}.product h3{font-size:12px}.price{font-size:15px}.add{padding:7px}.toolbar{flex-wrap:wrap}.search{flex-basis:100%}.feature{grid-template-columns:1fr;padding:20px}.feature h2{font-size:27px}}
+
+.product-open{display:block;width:100%;padding:0;border:0;background:transparent;color:inherit;text-align:inherit;cursor:pointer}
+.product-open:focus-visible{outline:3px solid var(--accent);outline-offset:3px;border-radius:8px}
+.product h3.product-title{cursor:pointer}
+.product h3.product-title:hover{text-decoration:underline;text-decoration-color:var(--accent2)}
+.detail-modal{position:fixed;inset:0;z-index:60;background:#101722d9;display:none;place-items:center;padding:20px;overflow:auto}
+.detail-modal.show{display:grid}
+.detail-box{width:min(980px,100%);max-height:92vh;overflow:auto;background:#fff;border:1px solid var(--line);border-radius:18px;color:var(--text);position:relative}
+.detail-close{position:sticky;top:10px;float:right;margin:10px 10px 0 0;z-index:2;border:1px solid var(--line);background:#fff;border-radius:9px;padding:9px 13px;font-weight:800}
+.detail-layout{display:grid;grid-template-columns:1fr 1fr;gap:26px;padding:28px}
+.detail-main-image{width:100%;height:420px;object-fit:contain;background:#f2f5f8;border:1px solid var(--line);border-radius:12px}
+.detail-thumbs{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.detail-thumb{width:68px;height:68px;object-fit:contain;border:1px solid var(--line);border-radius:8px;padding:3px;background:#f5f7fa;cursor:pointer}
+.detail-thumb.active{border:2px solid var(--accent2)}
+.detail-info{padding:12px 8px}
+.detail-info h2{font-size:30px;line-height:1.12;margin:8px 0 12px;letter-spacing:-.04em}
+.detail-price{font-size:26px;font-weight:950;margin:18px 0}
+.detail-description{white-space:pre-wrap;color:#566276;line-height:1.7;margin:18px 0}
+.detail-meta{border-top:1px solid var(--line);padding-top:14px;color:#566276;font-size:13px}
+.detail-meta div{margin:7px 0}
+@media(max-width:700px){.detail-layout{grid-template-columns:1fr;padding:18px}.detail-main-image{height:300px}.detail-info h2{font-size:24px}}
+
 </style>
 </head>
 <body>
@@ -48,18 +70,26 @@ footer{border-top:1px solid var(--line);padding:38px 0;color:#687487;font-size:1
 <section class="feature" id="vault"><div><div class="eyebrow">FOR THE LOVE OF THE CLASSICS</div><h2>WELCOME TO<br>THE COLLECTOR'S VAULT.</h2><p>Hunting for a nostalgic favorite or adding a rare title to your shelf? Explore a handpicked world of physical games, classic hardware and collector finds.</p><a class="btn" href="#shop">BROWSE THE VAULT ↗</a></div><img src="https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?auto=format&fit=crop&w=900&q=85" alt="Gaming collection"></section>
 <section class="section" id="about"><div class="eyebrow">ABOUT DASMA GAMEHUB</div><h2>MORE THAN JUST GAMES.</h2><p class="muted" style="max-width:650px">A home for gamers and collectors. From everyday favorites to retro treasures, DASMA GAMEHUB celebrates the joy of owning, playing and preserving video games.</p></section>
 </main>
+
+<div class="detail-modal" id="productDetailModal" role="dialog" aria-modal="true" aria-label="Product details">
+  <div class="detail-box">
+    <button class="detail-close" id="detailClose" type="button">✕ Close</button>
+    <div class="detail-layout" id="detailContent"></div>
+  </div>
+</div>
+
 <footer><div class="wrap foot"><div><strong>DASMA GAMEHUB</strong><br>Discover. Collect. Play.<br><br>© 2026 DASMA GAMEHUB. All rights reserved.</div><div><strong>NEED HELP?</strong><br><a href="#" onclick="alert('Add your Facebook page or Messenger link here.');return false">Contact us</a><a href="#shop">Shop</a><a href="#about">About</a><p>Dasmariñas, Cavite, Philippines</p></div></div></footer>
 <script>
 let products=[
-{id:1,name:"PlayStation 5 DualSense Controller",cat:"Accessories",price:3495,condition:"Pre-owned · Tested",tag:"FEATURED",shopeeUrl:"",img:"https://images.unsplash.com/photo-1606813907291-d86efa9b94db?auto=format&fit=crop&w=700&q=85"},
-{id:2,name:"PlayStation 2 Console Bundle",cat:"Retro",price:3295,condition:"Pre-owned · Tested",tag:"RETRO PICK",shopeeUrl:"",img:"https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?auto=format&fit=crop&w=700&q=85"},
-{id:3,name:"Nintendo Switch Console",cat:"Nintendo",price:8995,condition:"Pre-owned · Tested",tag:"COLLECTOR FIND",shopeeUrl:"",img:"https://images.unsplash.com/photo-1578303512597-81e6cc155b3e?auto=format&fit=crop&w=700&q=85"},
-{id:4,name:"Xbox Wireless Controller",cat:"Xbox",price:2495,condition:"Pre-owned · Tested",tag:"GREAT VALUE",shopeeUrl:"",img:"https://images.unsplash.com/photo-1593305841991-05c297ba4575?auto=format&fit=crop&w=700&q=85"},
-{id:5,name:"PlayStation 4 Game Collection",cat:"PlayStation",price:1295,condition:"Pre-owned · Disc",tag:"GAMER PICK",shopeeUrl:"",img:"https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?auto=format&fit=crop&w=700&q=85"},
-{id:6,name:"Classic Nintendo Handheld",cat:"Nintendo",price:1995,condition:"Pre-owned · Check listing",tag:"CLASSIC",shopeeUrl:"",img:"https://images.unsplash.com/photo-1592840496694-26d035b52b48?auto=format&fit=crop&w=700&q=85"},
-{id:7,name:"PlayStation 3 Console",cat:"PlayStation",price:3995,condition:"Pre-owned · Tested",tag:"VAULT PICK",shopeeUrl:"",img:"https://images.unsplash.com/photo-1486572788966-cfd3df1f5b42?auto=format&fit=crop&w=700&q=85"},
-{id:8,name:"Retro Gaming Accessories",cat:"Accessories",price:795,condition:"Pre-owned · See details",tag:"ADD TO SETUP",shopeeUrl:"",img:"https://images.unsplash.com/photo-1550746938-7bcc1f6b5a4b?auto=format&fit=crop&w=700&q=85"}
-,{id:9,name:"Shadows of the Damned — PS3 (Rare, R3/R2 English)",cat:"PlayStation",price:null,condition:"Pre-owned · See Shopee listing for condition",tag:"RARE FIND",shopeeUrl:"https://shopee.ph/Shadows-of-the-Damned-ps3-game-RARE-R3-R2-English-i.479448168.9977819438?extraParams=%7B%22display_model_id%22%3A366219322518%2C%22model_selection_logic%22%3A3%7D&image_ids=ph-11134207-820lh-mqqyr5svvnk215",img:"https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?auto=format&fit=crop&w=700&q=85"}
+{id:1,name:"PlayStation 5 DualSense Controller",cat:"Accessories",price:3495,condition:"Pre-owned · Tested",tag:"FEATURED",shopeeUrl:"",img:"https://images.unsplash.com/photo-1606813907291-d86efa9b94db?auto=format&fit=crop&w=700&q=85",images:["https://images.unsplash.com/photo-1606813907291-d86efa9b94db?auto=format&fit=crop&w=700&q=85"]},
+{id:2,name:"PlayStation 2 Console Bundle",cat:"Retro",price:3295,condition:"Pre-owned · Tested",tag:"RETRO PICK",shopeeUrl:"",img:"https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?auto=format&fit=crop&w=700&q=85",images:["https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?auto=format&fit=crop&w=700&q=85"]},
+{id:3,name:"Nintendo Switch Console",cat:"Nintendo",price:8995,condition:"Pre-owned · Tested",tag:"COLLECTOR FIND",shopeeUrl:"",img:"https://images.unsplash.com/photo-1578303512597-81e6cc155b3e?auto=format&fit=crop&w=700&q=85",images:["https://images.unsplash.com/photo-1578303512597-81e6cc155b3e?auto=format&fit=crop&w=700&q=85"]},
+{id:4,name:"Xbox Wireless Controller",cat:"Xbox",price:2495,condition:"Pre-owned · Tested",tag:"GREAT VALUE",shopeeUrl:"",img:"https://images.unsplash.com/photo-1593305841991-05c297ba4575?auto=format&fit=crop&w=700&q=85",images:["https://images.unsplash.com/photo-1593305841991-05c297ba4575?auto=format&fit=crop&w=700&q=85"]},
+{id:5,name:"PlayStation 4 Game Collection",cat:"PlayStation",price:1295,condition:"Pre-owned · Disc",tag:"GAMER PICK",shopeeUrl:"",img:"https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?auto=format&fit=crop&w=700&q=85",images:["https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?auto=format&fit=crop&w=700&q=85"]},
+{id:6,name:"Classic Nintendo Handheld",cat:"Nintendo",price:1995,condition:"Pre-owned · Check listing",tag:"CLASSIC",shopeeUrl:"",img:"https://images.unsplash.com/photo-1592840496694-26d035b52b48?auto=format&fit=crop&w=700&q=85",images:["https://images.unsplash.com/photo-1592840496694-26d035b52b48?auto=format&fit=crop&w=700&q=85"]},
+{id:7,name:"PlayStation 3 Console",cat:"PlayStation",price:3995,condition:"Pre-owned · Tested",tag:"VAULT PICK",shopeeUrl:"",img:"https://images.unsplash.com/photo-1486572788966-cfd3df1f5b42?auto=format&fit=crop&w=700&q=85",images:["https://images.unsplash.com/photo-1486572788966-cfd3df1f5b42?auto=format&fit=crop&w=700&q=85"]},
+{id:8,name:"Retro Gaming Accessories",cat:"Accessories",price:795,condition:"Pre-owned · See details",tag:"ADD TO SETUP",shopeeUrl:"",img:"https://images.unsplash.com/photo-1550746938-7bcc1f6b5a4b?auto=format&fit=crop&w=700&q=85",images:["https://images.unsplash.com/photo-1550746938-7bcc1f6b5a4b?auto=format&fit=crop&w=700&q=85"]}
+,{id:9,name:"Shadows of the Damned — PS3 (Rare, R3/R2 English)",cat:"PlayStation",price:null,condition:"Pre-owned · See Shopee listing for condition",tag:"RARE FIND",shopeeUrl:"https://shopee.ph/Shadows-of-the-Damned-ps3-game-RARE-R3-R2-English-i.479448168.9977819438?extraParams=%7B%22display_model_id%22%3A366219322518%2C%22model_selection_logic%22%3A3%7D&image_ids=ph-11134207-820lh-mqqyr5svvnk215",img:"https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?auto=format&fit=crop&w=700&q=85",images:["https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?auto=format&fit=crop&w=700&q=85"]}
 ];
 let category="All";
 const peso=n=>"₱"+n.toLocaleString("en-PH");
@@ -67,7 +97,7 @@ function render(){
  let list=products.filter(p=>(category==="All"||p.cat===category)&&p.name.toLowerCase().includes(document.getElementById("search").value.toLowerCase()));
  let sort=document.getElementById("sort").value;
  if(sort==="low")list.sort((a,b)=>(a.price??Infinity)-(b.price??Infinity));if(sort==="high")list.sort((a,b)=>(b.price??-Infinity)-(a.price??-Infinity));if(sort==="az")list.sort((a,b)=>a.name.localeCompare(b.name));
- document.getElementById("products").innerHTML=list.length?list.map(p=>`<article class="product"><div class="product-img"><span class="tag">${p.tag}</span><img src="${p.img}" alt="${p.name}" onerror="this.style.display='none';this.parentElement.insertAdjacentHTML('beforeend','<span style=&quot;font-size:48px&quot;>🎮</span>')"></div><div class="product-body"><div class="product-cat">${p.cat}</div><h3>${p.name}</h3><div class="condition">${p.condition} · ${p.stock_status === "sold_out" ? "SOLD OUT" : p.stock_status === "reserved" ? "RESERVED" : "IN STOCK"}</div><div class="price-row"><span class="price">${p.price ? peso(p.price) : "SEE SHOPEE"}</span><button class="add" onclick="buyNow(${p.id})">BUY ON SHOPEE ↗</button></div></div></article>`).join(""):'<div class="empty">No products found. Try another search or category.</div>';
+ document.getElementById("products").innerHTML=list.length?list.map(p=>`<article class="product"><button class="product-open" type="button" data-open-product="${p.id}" aria-label="View details for ${p.name}"><div class="product-img"><span class="tag">${p.tag}</span><img src="${p.img}" alt="${p.name}" onerror="this.style.display='none';this.parentElement.insertAdjacentHTML('beforeend','<span style=&quot;font-size:48px&quot;>🎮</span>')"></div></button><div class="product-body"><div class="product-cat">${p.cat}</div><h3 class="product-title" role="button" tabindex="0" data-open-product="${p.id}">${p.name}</h3><div class="condition">${p.condition} · ${p.stock_status === "sold_out" ? "SOLD OUT" : p.stock_status === "reserved" ? "RESERVED" : "IN STOCK"}</div><div class="price-row"><span class="price">${p.price ? peso(p.price) : "SEE SHOPEE"}</span><button class="add" onclick="buyNow(${p.id})">BUY ON SHOPEE ↗</button></div></div></article>`).join(""):'<div class="empty">No products found. Try another search or category.</div>';
 }
 document.getElementById("chips").addEventListener("click",e=>{if(!e.target.dataset.cat)return;category=e.target.dataset.cat;document.querySelectorAll(".chip").forEach(x=>x.classList.toggle("active",x===e.target));render()});
 document.getElementById("search").addEventListener("input",render);document.getElementById("sort").addEventListener("change",render);
@@ -209,7 +239,7 @@ render();
       price:p.price == null ? null : Number(p.price),
       condition:p.condition === "new" ? "New" : p.condition === "for_parts" ? "For parts / repair" : "Pre-owned",
       tag:p.is_featured ? "FEATURED" : (p.stock_status === "sold_out" ? "SOLD OUT" : "DASMA FIND"),
-      shopeeUrl:p.shopee_url || "", img:(grouped[p.id] || [])[0] || "",
+      shopeeUrl:p.shopee_url || "", img:(grouped[p.id] || [])[0] || "", images:grouped[p.id] || [], platform:p.platform || "",
       stock_status:p.stock_status, quantity:p.quantity, description:p.description || ""
     }));
   }
@@ -325,6 +355,41 @@ render();
     if(!p.shopeeUrl){alert("This product does not have an individual Shopee listing link yet.");return;}
     window.open(p.shopeeUrl,"_blank","noopener");
   };
+
+  function openProductDetails(id) {
+    const p=products.find(x=>String(x.id)===String(id));
+    if(!p)return;
+    const modal=$("productDetailModal"), content=$("detailContent");
+    const photos=(p.images&&p.images.length?p.images:[p.img]).filter(Boolean);
+    const safePhotos=photos.length?photos:[""];
+    const photoHtml=safePhotos.map((url,i)=>'<img class="detail-thumb '+(i===0?'active':'')+'" src="'+escapeHtml(url)+'" alt="'+escapeHtml(p.name)+' photo '+(i+1)+'" data-photo="'+i+'">').join("");
+    const stock=p.stock_status==="sold_out"?"Sold out":p.stock_status==="reserved"?"Reserved":"In stock";
+    content.innerHTML='<div><img class="detail-main-image" id="detailMainImage" src="'+escapeHtml(safePhotos[0])+'" alt="'+escapeHtml(p.name)+'">'+(safePhotos.length>1?'<div class="detail-thumbs">'+photoHtml+'</div>':'')+'</div>'+
+      '<div class="detail-info"><div class="product-cat">'+escapeHtml(p.cat||"Gaming")+'</div><h2>'+escapeHtml(p.name)+'</h2>'+
+      '<div class="condition">'+escapeHtml(p.condition||"Condition not specified")+'</div><div class="detail-price">'+escapeHtml(peso(p.price))+'</div>'+
+      '<div class="detail-description">'+escapeHtml(p.description||"More product details will be added soon. Please contact DASMA GAMEHUB if you need additional information.")+'</div>'+
+      '<div class="detail-meta"><div><b>Platform:</b> '+escapeHtml(p.platform||p.cat||"Not specified")+'</div><div><b>Condition:</b> '+escapeHtml(p.condition||"Not specified")+'</div><div><b>Availability:</b> '+escapeHtml(stock)+'</div></div>'+
+      '<div style="margin-top:22px"><button class="btn" id="detailBuyButton" type="button">BUY ON SHOPEE ↗</button></div></div>';
+    modal.classList.add("show");
+    $("detailBuyButton").addEventListener("click",()=>buyNow(p.id));
+    content.querySelectorAll("[data-photo]").forEach(thumb=>thumb.addEventListener("click",()=>{
+      $("detailMainImage").src=safePhotos[Number(thumb.dataset.photo)];
+      content.querySelectorAll(".detail-thumb").forEach(x=>x.classList.toggle("active",x===thumb));
+    }));
+  }
+  document.getElementById("products").addEventListener("click",e=>{
+    const target=e.target.closest("[data-open-product]");
+    if(target)openProductDetails(target.dataset.openProduct);
+  });
+  document.getElementById("products").addEventListener("keydown",e=>{
+    if((e.key==="Enter"||e.key===" ")&&e.target.matches("[data-open-product][role='button']")){
+      e.preventDefault();openProductDetails(e.target.dataset.openProduct);
+    }
+  });
+  $("detailClose").addEventListener("click",()=>$("productDetailModal").classList.remove("show"));
+  $("productDetailModal").addEventListener("click",e=>{if(e.target.id==="productDetailModal")e.currentTarget.classList.remove("show");});
+  document.addEventListener("keydown",e=>{if(e.key==="Escape")$("productDetailModal").classList.remove("show");});
+
   window.addEventListener("DOMContentLoaded",loadStorefront);
   loadStorefront();
 })();
