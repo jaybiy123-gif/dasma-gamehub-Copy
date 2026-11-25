@@ -93,6 +93,7 @@ let products=[
 ];
 let category="All";
 const peso=n=>"₱"+n.toLocaleString("en-PH");
+function escapeHtml(value){return String(value ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;", "'":"&#39;"}[c]));}
 function render(){
  let list=products.filter(p=>(category==="All"||p.cat===category)&&p.name.toLowerCase().includes(document.getElementById("search").value.toLowerCase()));
  let sort=document.getElementById("sort").value;
