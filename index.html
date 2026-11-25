@@ -172,6 +172,16 @@ render();
 .admin-status{font-size:13px;color:#526071;margin:8px 0}
 .admin-hidden{display:none!important}
 @media(max-width:650px){.admin-grid{grid-template-columns:1fr}.admin-field.full{grid-column:auto}.admin-table{font-size:11px}.admin-table th,.admin-table td{padding:7px}}
+
+.existing-photos{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
+.admin-photo{width:126px;background:#f4f6f9;border:1px solid #d7dde6;border-radius:10px;padding:8px;position:relative}
+.admin-photo img{width:100%;height:105px;object-fit:contain;background:#fff;border-radius:6px}
+.admin-photo strong{display:block;font-size:12px;margin:6px 0 2px}
+.admin-photo small{display:block;color:#687487;font-size:10px;overflow-wrap:anywhere}
+.admin-photo-controls{display:flex;gap:5px;margin-top:7px}
+.admin-photo-controls button{flex:1;border:1px solid #cbd4df;background:#fff;border-radius:6px;padding:5px;font-size:11px}
+.admin-photo-controls button:disabled{opacity:.35;cursor:not-allowed}
+
 </style>
 <div id="adminPanel" aria-modal="true" role="dialog">
   <div class="admin-wrap">
@@ -202,7 +212,7 @@ render();
             <div class="admin-field"><label>Quantity</label><input id="pQuantity" type="number" min="0" step="1" value="1"></div>
             <div class="admin-field"><label>Shopee product URL</label><input id="pShopee" type="url" placeholder="https://shopee.ph/..."></div>
             <div class="admin-field full"><label>Description</label><textarea id="pDescription" placeholder="Describe the item, condition, included accessories, region, etc."></textarea></div>
-            <div class="admin-field full"><label>Product photos (you can select multiple)</label><input id="pPhotos" type="file" accept="image/*" multiple><small class="muted">JPG, PNG or WebP recommended. Photos upload to the product-photos bucket.</small></div>
+            <div class="admin-field full"><label>Product photos (you can select multiple)</label><input id="pPhotos" type="file" accept="image/*" multiple><small class="muted">JPG, PNG or WebP recommended. New photos are added after existing photos.</small><div id="existingPhotos" class="existing-photos"><span class="muted">Existing photos will appear here when you edit a product.</span></div><small class="muted">Photo #1 is the main storefront image. Use the arrows to change the order, then click UPDATE PRODUCT.</small></div>
             <div class="admin-field"><label><input id="pFeatured" type="checkbox"> Feature this product</label></div>
             <div class="admin-field"><label><input id="pPublished" type="checkbox" checked> Publish on storefront</label></div>
           </div>
@@ -228,6 +238,7 @@ render();
   const loginBox = document.getElementById("adminLogin");
   const dashboard = document.getElementById("adminDashboard");
   let currentUser = null;
+  let existingPhotoRows = [];
 
   const $ = id => document.getElementById(id);
   const escapeHtml = value => String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -307,7 +318,7 @@ render();
     </tr>`).join("");
   }
   function resetForm() {
-    $("productForm").reset(); $("productId").value=""; $("pQuantity").value="1";
+    $("productForm").reset(); $("productId").value=""; $("pQuantity").value="1"; existingPhotoRows=[]; renderExistingPhotos();
     $("productFormTitle").textContent="Add a product"; $("saveProductBtn").textContent="SAVE PRODUCT";
   }
   async function editProduct(id) {
@@ -319,8 +330,21 @@ render();
     $("pQuantity").value=p.quantity??1; $("pShopee").value=p.shopee_url||"";
     $("pDescription").value=p.description||""; $("pFeatured").checked=!!p.is_featured;
     $("pPublished").checked=!!p.is_published; $("pPhotos").value="";
+    const {data:photoRows,error:photoError}=await client.from("product_images").select("*").eq("product_id",id).order("sort_order",{ascending:true}).order("created_at",{ascending:true});
+    if(photoError){setStatus("Could not load product photos: "+photoError.message,true);return;}
+    existingPhotoRows=(photoRows||[]).map(row=>({...row}));
+    renderExistingPhotos();
     $("productFormTitle").textContent="Edit product"; $("saveProductBtn").textContent="UPDATE PRODUCT";
     $("productFormTitle").scrollIntoView({behavior:"smooth",block:"center"});
+  }
+  function renderExistingPhotos() {
+    const holder=$("existingPhotos");
+    if(!holder)return;
+    if(!existingPhotoRows.length){holder.innerHTML='<span class="muted">No photos uploaded for this product yet.</span>';return;}
+    holder.innerHTML=existingPhotoRows.map((photo,index)=>{
+      const {data:{publicUrl}}=client.storage.from(BUCKET).getPublicUrl(photo.storage_path);
+      return '<div class="admin-photo"><img src="'+escapeHtml(publicUrl)+'" alt="Product photo '+(index+1)+'"><strong>PHOTO #'+(index+1)+(index===0?' · MAIN':'')+'</strong><small>'+escapeHtml(photo.storage_path.split('/').pop())+'</small><div class="admin-photo-controls"><button type="button" data-photo-up="'+index+'" '+(index===0?'disabled':'')+'>↑</button><button type="button" data-photo-down="'+index+'" '+(index===existingPhotoRows.length-1?'disabled':'')+'>↓</button></div></div>';
+    }).join("");
   }
   async function saveProduct(event) {
     event.preventDefault();
@@ -346,7 +370,12 @@ render();
         const {data,error}=await client.from("products").insert(record).select("id").single();
         if(error) throw error; productId=data.id;
       }
+      for(let i=0;i<existingPhotoRows.length;i++){
+        const {error:orderError}=await client.from("product_images").update({sort_order:i}).eq("id",existingPhotoRows[i].id);
+        if(orderError) throw orderError;
+      }
       const files=Array.from($("pPhotos").files||[]);
+      let nextPhotoOrder=existingPhotoRows.length;
       for(let i=0;i<files.length;i++){
         const file=files[i];
         if(!file.type.startsWith("image/")) continue;
@@ -355,7 +384,7 @@ render();
         const {error:uploadError}=await client.storage.from(BUCKET).upload(path,file,{upsert:false,contentType:file.type});
         if(uploadError) throw uploadError;
         const {error:rowError}=await client.from("product_images").insert({
-          product_id:productId, storage_path:path, alt_text:name, sort_order:i
+          product_id:productId, storage_path:path, alt_text:name, sort_order:nextPhotoOrder++
         });
         if(rowError) throw rowError;
       }
@@ -376,6 +405,15 @@ render();
     await checkAdmin();
   });
   $("adminLogout").addEventListener("click",async()=>{await client.auth.signOut();showLogin("You have signed out.");});
+  $("existingPhotos").addEventListener("click",e=>{
+    const up=e.target.dataset.photoUp, down=e.target.dataset.photoDown;
+    if(up!==undefined && Number(up)>0){
+      const i=Number(up); [existingPhotoRows[i-1],existingPhotoRows[i]]=[existingPhotoRows[i],existingPhotoRows[i-1]]; renderExistingPhotos();
+    }
+    if(down!==undefined && Number(down)<existingPhotoRows.length-1){
+      const i=Number(down); [existingPhotoRows[i+1],existingPhotoRows[i]]=[existingPhotoRows[i],existingPhotoRows[i+1]]; renderExistingPhotos();
+    }
+  });
   $("productForm").addEventListener("submit",saveProduct);
   $("resetProductBtn").addEventListener("click",resetForm);
   $("adminProductRows").addEventListener("click",async e=>{
