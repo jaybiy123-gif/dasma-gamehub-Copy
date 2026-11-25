@@ -137,7 +137,7 @@ function render(){
  let list=products.filter(p=>(category==="All"||p.cat===category)&&p.name.toLowerCase().includes(document.getElementById("search").value.toLowerCase()));
  let sort=document.getElementById("sort").value;
  if(sort==="low")list.sort((a,b)=>(a.price??Infinity)-(b.price??Infinity));if(sort==="high")list.sort((a,b)=>(b.price??-Infinity)-(a.price??-Infinity));if(sort==="az")list.sort((a,b)=>a.name.localeCompare(b.name));
- document.getElementById("products").innerHTML=list.length?list.map(p=>`<article class="product"><button class="product-open" type="button" data-open-product="${p.id}" aria-label="View details for ${p.name}"><div class="product-img"><span class="tag">${p.tag}</span><img src="${p.img}" alt="${p.name}" onerror="this.style.display='none';this.parentElement.insertAdjacentHTML('beforeend','<span style=&quot;font-size:48px&quot;>🎮</span>')"></div></button><div class="product-body"><div class="product-cat">${p.cat}</div><h3 class="product-title" role="button" tabindex="0" data-open-product="${p.id}">${p.name}</h3><div class="condition">${p.condition} · ${p.stock_status === "sold_out" ? "SOLD OUT" : p.stock_status === "reserved" ? "RESERVED" : "IN STOCK"}</div><div class="price-row"><span class="price ${p.price == null ? "shopee-price" : ""}">${p.price == null ? "Price on Shopee" : peso(p.price)}</span><a class="add" href="${escapeHtml(p.shopeeUrl || "https://shopee.ph/dasmagamehub?entryPoint=ShopBySearch&searchKeyword=dasmagamehub")}" target="_blank" rel="noopener noreferrer">BUY ON SHOPEE ↗</a></div></div></article>`).join(""):'<div class="empty">No products found. Try another search or category.</div>';
+ document.getElementById("products").innerHTML=list.length?list.map(p=>`<article class="product"><button class="product-open" type="button" data-open-product="${p.id}" aria-label="View details for ${p.name}"><div class="product-img"><span class="tag">${p.tag}</span><img src="${p.img}" alt="${p.name}" loading="lazy" decoding="async" onerror="this.style.display='none';this.parentElement.insertAdjacentHTML('beforeend','<span style=&quot;font-size:48px&quot;>🎮</span>')"></div></button><div class="product-body"><div class="product-cat">${p.cat}</div><h3 class="product-title" role="button" tabindex="0" data-open-product="${p.id}">${p.name}</h3><div class="condition">${p.condition} · ${p.stock_status === "sold_out" ? "SOLD OUT" : p.stock_status === "reserved" ? "RESERVED" : "IN STOCK"}</div><div class="price-row"><span class="price ${p.price == null ? "shopee-price" : ""}">${p.price == null ? "Price on Shopee" : peso(p.price)}</span><a class="add" href="${escapeHtml(p.shopeeUrl || "https://shopee.ph/dasmagamehub?entryPoint=ShopBySearch&searchKeyword=dasmagamehub")}" target="_blank" rel="noopener noreferrer">BUY ON SHOPEE ↗</a></div></div></article>`).join(""):'<div class="empty">No products found. Try another search or category.</div>';
 }
 document.getElementById("chips").addEventListener("click",e=>{if(!e.target.dataset.cat)return;category=e.target.dataset.cat;document.querySelectorAll(".chip").forEach(x=>x.classList.toggle("active",x===e.target));render()});
 document.getElementById("search").addEventListener("input",render);document.getElementById("sort").addEventListener("change",render);
@@ -212,7 +212,7 @@ render();
             <div class="admin-field"><label>Quantity</label><input id="pQuantity" type="number" min="0" step="1" value="1"></div>
             <div class="admin-field"><label>Shopee product URL</label><input id="pShopee" type="url" placeholder="https://shopee.ph/..."></div>
             <div class="admin-field full"><label>Description</label><textarea id="pDescription" placeholder="Describe the item, condition, included accessories, region, etc."></textarea></div>
-            <div class="admin-field full"><label>Product photos (you can select multiple)</label><input id="pPhotos" type="file" accept="image/*" multiple><small class="muted">JPG, PNG or WebP recommended. New photos are added after existing photos.</small><div id="existingPhotos" class="existing-photos"><span class="muted">Existing photos will appear here when you edit a product.</span></div><small class="muted">Photo #1 is the main storefront image. Use the arrows to change the order, then click UPDATE PRODUCT.</small></div>
+            <div class="admin-field full"><label>Product photos (you can select multiple)</label><input id="pPhotos" type="file" accept="image/*" multiple><small class="muted">JPG, PNG or WebP. Photos are automatically resized and converted to WebP before upload (maximum 1400px, target around 150 KB). New photos are added after existing photos.</small><div id="existingPhotos" class="existing-photos"><span class="muted">Existing photos will appear here when you edit a product.</span></div><small class="muted">Photo #1 is the main storefront image. Use the arrows to change the order, then click UPDATE PRODUCT.</small></div>
             <div class="admin-field"><label><input id="pFeatured" type="checkbox"> Feature this product</label></div>
             <div class="admin-field"><label><input id="pPublished" type="checkbox" checked> Publish on storefront</label></div>
           </div>
@@ -343,9 +343,32 @@ render();
     if(!existingPhotoRows.length){holder.innerHTML='<span class="muted">No photos uploaded for this product yet.</span>';return;}
     holder.innerHTML=existingPhotoRows.map((photo,index)=>{
       const {data:{publicUrl}}=client.storage.from(BUCKET).getPublicUrl(photo.storage_path);
-      return '<div class="admin-photo" draggable="true" data-photo-index="'+index+'"><img src="'+escapeHtml(publicUrl)+'" alt="Product photo '+(index+1)+'"><strong>PHOTO #'+(index+1)+(index===0?' · MAIN':'')+'</strong><small>Drag to reorder</small></div>';
+      return '<div class="admin-photo" draggable="true" data-photo-index="'+index+'"><img src="'+escapeHtml(publicUrl)+'" loading="lazy" decoding="async" alt="Product photo '+(index+1)+'"><strong>PHOTO #'+(index+1)+(index===0?' · MAIN':'')+'</strong><small>Drag to reorder</small></div>';
     }).join("");
   }
+  async function optimizeProductImage(file) {
+    if (!("createImageBitmap" in window)) throw new Error("Your browser cannot optimize images automatically. Please use an up-to-date Chrome or Edge browser.");
+    const bitmap = await createImageBitmap(file);
+    const maxSide = 1400;
+    const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height));
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+    canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+    const context = canvas.getContext("2d", {alpha:false});
+    context.fillStyle = "#ffffff";
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    bitmap.close();
+    let quality = 0.82;
+    let blob = await new Promise(resolve => canvas.toBlob(resolve, "image/webp", quality));
+    while (blob && blob.size > 180 * 1024 && quality > 0.5) {
+      quality -= 0.07;
+      blob = await new Promise(resolve => canvas.toBlob(resolve, "image/webp", quality));
+    }
+    if (!blob) throw new Error("Could not convert one of the selected photos.");
+    return blob;
+  }
+
   async function saveProduct(event) {
     event.preventDefault();
     const id=$("productId").value;
@@ -379,9 +402,10 @@ render();
       for(let i=0;i<files.length;i++){
         const file=files[i];
         if(!file.type.startsWith("image/")) continue;
-        const safeName=file.name.replace(/[^a-zA-Z0-9._-]/g,"-");
-        const path=productId+"/"+Date.now()+"-"+i+"-"+safeName;
-        const {error:uploadError}=await client.storage.from(BUCKET).upload(path,file,{upsert:false,contentType:file.type});
+        setStatus("Optimizing photo "+(i+1)+" of "+files.length+"…");
+        const optimizedBlob=await optimizeProductImage(file);
+        const path=productId+"/"+Date.now()+"-"+i+".webp";
+        const {error:uploadError}=await client.storage.from(BUCKET).upload(path,optimizedBlob,{upsert:false,contentType:"image/webp",cacheControl:"31536000"});
         if(uploadError) throw uploadError;
         const {error:rowError}=await client.from("product_images").insert({
           product_id:productId, storage_path:path, alt_text:name, sort_order:nextPhotoOrder++
@@ -462,7 +486,7 @@ render();
     const modal=$("productDetailModal"), content=$("detailContent");
     const photos=(p.images&&p.images.length?p.images:[p.img]).filter(Boolean);
     const safePhotos=photos.length?photos:[""];
-    const photoHtml=safePhotos.map((url,i)=>'<img class="detail-thumb '+(i===0?'active':'')+'" src="'+escapeHtml(url)+'" alt="'+escapeHtml(p.name)+' photo '+(i+1)+'" data-photo="'+i+'">').join("");
+    const photoHtml=safePhotos.map((url,i)=>'<img class="detail-thumb '+(i===0?'active':'')+'" src="'+escapeHtml(url)+'" loading="lazy" decoding="async" alt="'+escapeHtml(p.name)+' photo '+(i+1)+'" data-photo="'+i+'">').join("");
     const stock=p.stock_status==="sold_out"?"Sold out":p.stock_status==="reserved"?"Reserved":"In stock";
     content.innerHTML='<div><img class="detail-main-image" id="detailMainImage" src="'+escapeHtml(safePhotos[0])+'" alt="'+escapeHtml(p.name)+'">'+(safePhotos.length>1?'<div class="detail-thumbs">'+photoHtml+'</div>':'')+'</div>'+
       '<div class="detail-info"><div class="product-cat">'+escapeHtml(p.cat||"Gaming")+'</div><h2>'+escapeHtml(p.name)+'</h2>'+
