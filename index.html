@@ -87,13 +87,25 @@ footer{border-top:1px solid var(--line);padding:38px 0;color:#687487;font-size:1
 .about-motto span{color:#fff}
 @media(max-width:900px){.about-pillars{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:560px){.about-story{padding-top:24px}.about-story-intro{padding:18px}.about-story .about-lead{font-size:18px}.about-pillars{grid-template-columns:1fr 1fr;gap:9px}.about-pillars article{padding:13px}.about-pillars h4{font-size:13px}.about-promise{padding:23px 19px}.about-motto{font-size:12px;line-height:1.8}}
+
+/* Community invitation */
+.community-section{padding:48px 28px;margin:10px 0 46px;border:1px solid #cbd4df;border-radius:20px;background:linear-gradient(125deg,#202633 0%,#303d50 68%,#46563a 100%);color:#f8fafc;text-align:center;overflow:hidden}
+.community-inner{max-width:760px;margin:auto}
+.community-section .eyebrow{color:var(--accent)}
+.community-section h2{font-size:clamp(32px,5vw,48px);line-height:1.02;letter-spacing:-.05em;margin:12px 0}
+.community-section h2 span{color:var(--accent)}
+.community-section p{max-width:610px;margin:0 auto;color:#d7dee8;line-height:1.75}
+.community-actions{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin:24px 0 18px}
+.community-section .btn.secondary{color:#fff;border-color:#8793a4}
+.community-motto{font-size:11px;font-weight:900;letter-spacing:.13em;color:var(--accent);margin-top:24px}
+@media(max-width:560px){.community-section{padding:34px 18px}.community-actions{flex-direction:column}.community-actions .btn{justify-content:center}}
 </style>
 </head>
 <body>
 <div class="topline">COLLECTORS, PLAYERS & RETRO GAMING FANS — WELCOME TO THE HUB</div>
 <header><div class="wrap nav">
 <a class="brand" href="#"><span class="brand-mark"><img src="https://prdepklmawvbqotbirtg.supabase.co/storage/v1/object/public/product-photos/85d1ca3f-6cfe-42fa-85ef-e67c87dcb982/branding/Dasmagame%20Hub%20Gaming%20Repair%20Logo.png" alt="DASMA GAMEHUB logo"></span><span>DASMA GAMEHUB<small>DISCOVER · COLLECT · PLAY</small></span></a>
-<nav class="links"><a href="#shop">SHOP</a><a href="#categories">CATEGORIES</a><a href="#customer-reviews">REVIEWS</a><a href="#vault">THE VAULT</a><a href="#about">ABOUT</a></nav>
+<nav class="links"><a href="#shop">SHOP</a><a href="#categories">CATEGORIES</a><a href="#customer-reviews">REVIEWS</a><a href="#vault">THE VAULT</a><a href="#community">COMMUNITY</a><a href="#about">ABOUT</a></nav>
 <div class="nav-actions"><button class="iconbtn" onclick="document.getElementById('shop').scrollIntoView({behavior:'smooth'})">⌕ Search</button><a class="iconbtn" href="#" onclick="openShopeeStore(event)">Shopee Store ↗</a><button class="iconbtn" id="adminOpen" type="button">Admin</button></div>
 </div></header>
 <main class="wrap">
@@ -136,6 +148,19 @@ footer{border-top:1px solid var(--line);padding:38px 0;color:#687487;font-size:1
 </section>
 
 <section class="feature" id="vault"><div><div class="eyebrow">FOR THE LOVE OF THE CLASSICS</div><h2>WELCOME TO<br>THE COLLECTOR'S VAULT.</h2><p>Hunting for a nostalgic favorite or adding a rare title to your shelf? Explore a handpicked world of physical games, classic hardware and collector finds.</p><a class="btn" href="#shop">BROWSE THE VAULT ↗</a></div><img src="https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?auto=format&fit=crop&w=900&q=85" alt="Gaming collection"></section>
+<section class="community-section" id="community">
+  <div class="community-inner">
+    <div class="eyebrow">YOU'RE PART OF THE STORY</div>
+    <h2>MORE THAN A STORE.<br><span>A COMMUNITY.</span></h2>
+    <p>Connect with fellow gamers, collectors and retro gaming fans. Share your gaming memories, discover classic games and celebrate the hobby we all love.</p>
+    <div class="community-actions">
+      <a class="btn" href="https://www.facebook.com/profile.php?id=61592860762199" target="_blank" rel="noopener noreferrer">FOLLOW US ON FACEBOOK ↗</a>
+      <a class="btn secondary" href="#shop">EXPLORE OUR WEBSITE</a>
+    </div>
+    <div class="community-motto">DASMA GAMEHUB — PLAY. PRESERVE. PASS IT ON.</div>
+  </div>
+</section>
+
 <section class="section about-story" id="about">
   <div class="about-story-head">
     <div class="eyebrow">THE STORY BEHIND THE HUB</div>
