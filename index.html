@@ -178,6 +178,7 @@ render();
 .admin-photo img{width:100%;height:105px;object-fit:contain;background:#fff;border-radius:6px}
 .admin-photo strong{display:block;font-size:12px;margin:6px 0 2px}
 .admin-photo small{display:block;color:#687487;font-size:10px;overflow-wrap:anywhere}
+.admin-photo-remove{width:100%;margin-top:8px;border:1px solid #e5aeb3;background:#fff5f5;color:#b42332;border-radius:6px;padding:7px 5px;font-size:10px;font-weight:900}.admin-photo-remove:hover{background:#ffe4e6}
 .admin-photo-controls{display:flex;gap:5px;margin-top:7px}
 .admin-photo-controls button{flex:1;border:1px solid #cbd4df;background:#fff;border-radius:6px;padding:5px;font-size:11px}
 .admin-photo-controls button:disabled{opacity:.35;cursor:not-allowed}
@@ -239,6 +240,7 @@ render();
   const dashboard = document.getElementById("adminDashboard");
   let currentUser = null;
   let existingPhotoRows = [];
+  let pendingDeletePhotoRows = [];
 
   const $ = id => document.getElementById(id);
   const escapeHtml = value => String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -318,7 +320,7 @@ render();
     </tr>`).join("");
   }
   function resetForm() {
-    $("productForm").reset(); $("productId").value=""; $("pQuantity").value="1"; existingPhotoRows=[]; renderExistingPhotos();
+    $("productForm").reset(); $("productId").value=""; $("pQuantity").value="1"; existingPhotoRows=[]; pendingDeletePhotoRows=[]; renderExistingPhotos();
     $("productFormTitle").textContent="Add a product"; $("saveProductBtn").textContent="SAVE PRODUCT";
   }
   async function editProduct(id) {
@@ -333,6 +335,7 @@ render();
     const {data:photoRows,error:photoError}=await client.from("product_images").select("*").eq("product_id",id).order("sort_order",{ascending:true}).order("created_at",{ascending:true});
     if(photoError){setStatus("Could not load product photos: "+photoError.message,true);return;}
     existingPhotoRows=(photoRows||[]).map(row=>({...row}));
+    pendingDeletePhotoRows=[];
     renderExistingPhotos();
     $("productFormTitle").textContent="Edit product"; $("saveProductBtn").textContent="UPDATE PRODUCT";
     $("productFormTitle").scrollIntoView({behavior:"smooth",block:"center"});
@@ -343,7 +346,7 @@ render();
     if(!existingPhotoRows.length){holder.innerHTML='<span class="muted">No photos uploaded for this product yet.</span>';return;}
     holder.innerHTML=existingPhotoRows.map((photo,index)=>{
       const {data:{publicUrl}}=client.storage.from(BUCKET).getPublicUrl(photo.storage_path);
-      return '<div class="admin-photo" draggable="true" data-photo-index="'+index+'"><img src="'+escapeHtml(publicUrl)+'" loading="lazy" decoding="async" alt="Product photo '+(index+1)+'"><strong>PHOTO #'+(index+1)+(index===0?' · MAIN':'')+'</strong><small>Drag to reorder</small></div>';
+      return '<div class="admin-photo" draggable="true" data-photo-index="'+index+'"><img src="'+escapeHtml(publicUrl)+'" loading="lazy" decoding="async" alt="Product photo '+(index+1)+'"><strong>PHOTO #'+(index+1)+(index===0?' · MAIN':'')+'</strong><small>Drag to reorder</small><button type="button" class="admin-photo-remove" data-remove-photo="'+index+'">REMOVE PHOTO</button></div>';
     }).join("");
   }
   async function optimizeProductImage(file) {
@@ -393,6 +396,16 @@ render();
         const {data,error}=await client.from("products").insert(record).select("id").single();
         if(error) throw error; productId=data.id;
       }
+      if(pendingDeletePhotoRows.length){
+        setStatus("Removing "+pendingDeletePhotoRows.length+" photo(s) from storage…");
+        const paths=pendingDeletePhotoRows.map(photo=>photo.storage_path);
+        const {error:storageDeleteError}=await client.storage.from(BUCKET).remove(paths);
+        if(storageDeleteError) throw new Error("Could not delete photo files. Check the Supabase Storage DELETE policy: "+storageDeleteError.message);
+        const ids=pendingDeletePhotoRows.map(photo=>photo.id);
+        const {error:rowDeleteError}=await client.from("product_images").delete().in("id",ids);
+        if(rowDeleteError) throw new Error("Photo files were removed, but photo records could not be deleted: "+rowDeleteError.message);
+        pendingDeletePhotoRows=[];
+      }
       for(let i=0;i<existingPhotoRows.length;i++){
         const {error:orderError}=await client.from("product_images").update({sort_order:i}).eq("id",existingPhotoRows[i].id);
         if(orderError) throw orderError;
@@ -429,6 +442,18 @@ render();
     await checkAdmin();
   });
   $("adminLogout").addEventListener("click",async()=>{await client.auth.signOut();showLogin("You have signed out.");});
+  $("existingPhotos").addEventListener("click",e=>{
+    const button=e.target.closest("[data-remove-photo]");
+    if(!button)return;
+    const index=Number(button.dataset.removePhoto);
+    const photo=existingPhotoRows[index];
+    if(!photo)return;
+    if(!window.confirm("Remove this photo from the product? The deletion will be permanent after you click UPDATE PRODUCT."))return;
+    pendingDeletePhotoRows.push(photo);
+    existingPhotoRows.splice(index,1);
+    renderExistingPhotos();
+    setStatus("Photo marked for removal. Click UPDATE PRODUCT to apply the change.");
+  });
   let draggedPhotoIndex=null;
   $("existingPhotos").addEventListener("dragstart",e=>{
     const card=e.target.closest("[data-photo-index]");
