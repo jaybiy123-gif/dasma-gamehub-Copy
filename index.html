@@ -42,13 +42,29 @@ footer{border-top:1px solid var(--line);padding:38px 0;color:#687487;font-size:1
 .detail-meta div{margin:7px 0}
 @media(max-width:700px){.detail-layout{grid-template-columns:1fr;padding:18px}.detail-main-image{height:300px}.detail-info h2{font-size:24px}}
 
+
+/* Shopee customer reviews */
+.reviews-summary{display:flex;align-items:center;gap:22px;flex-wrap:wrap;background:#202633;color:#f8fafc;border-radius:16px;padding:22px 26px;margin:18px 0 22px}
+.reviews-score{font-size:42px;line-height:1;font-weight:950;color:var(--accent)}
+.reviews-stars{color:#f5b942;letter-spacing:3px;font-size:20px}
+.reviews-summary small{color:#c5cedb}
+.review-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.review-card{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px;display:flex;flex-direction:column;gap:10px}
+.review-card p{margin:0;color:#394456;font-size:13px;line-height:1.65}
+.review-card .review-by{font-size:11px;color:var(--muted);margin-top:auto;padding-top:6px}
+.review-card .review-stars{color:#e85b32;letter-spacing:2px;font-size:15px}
+.review-product{font-size:10px;color:#718096;font-weight:800;text-transform:uppercase;letter-spacing:.07em}
+.review-source{font-size:10px;color:#8a94a3;margin-top:14px}
+@media(max-width:900px){.review-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.review-grid{grid-template-columns:1fr}.reviews-summary{padding:18px}.reviews-score{font-size:36px}}
+
 </style>
 </head>
 <body>
 <div class="topline">COLLECTORS, PLAYERS & RETRO GAMING FANS — WELCOME TO THE HUB</div>
 <header><div class="wrap nav">
 <a class="brand" href="#"><span class="brand-mark">✚</span><span>DASMA GAMEHUB<small>DISCOVER · COLLECT · PLAY</small></span></a>
-<nav class="links"><a href="#shop">SHOP</a><a href="#categories">CATEGORIES</a><a href="#vault">THE VAULT</a><a href="#about">ABOUT</a></nav>
+<nav class="links"><a href="#shop">SHOP</a><a href="#categories">CATEGORIES</a><a href="#customer-reviews">REVIEWS</a><a href="#vault">THE VAULT</a><a href="#about">ABOUT</a></nav>
 <div class="nav-actions"><button class="iconbtn" onclick="document.getElementById('shop').scrollIntoView({behavior:'smooth'})">⌕ Search</button><a class="iconbtn" href="#" onclick="openShopeeStore(event)">Shopee Store ↗</a><button class="iconbtn" id="adminOpen" type="button">Admin</button></div>
 </div></header>
 <main class="wrap">
@@ -67,6 +83,29 @@ footer{border-top:1px solid var(--line);padding:38px 0;color:#687487;font-size:1
 <section class="section" id="shop"><div class="section-head"><div><div class="eyebrow">THE LATEST FINDS</div><h2>FEATURED PRODUCTS</h2><div class="muted" style="font-size:12px">Demo listings — replace with your real inventory</div></div></div>
 <div class="toolbar"><input class="search" id="search" placeholder="Search games, consoles, accessories..." aria-label="Search products"><select id="sort"><option value="featured">Sort: Featured</option><option value="low">Price: Low to high</option><option value="high">Price: High to low</option><option value="az">Name: A to Z</option></select></div>
 <div class="grid" id="products"></div></section>
+
+<section class="section" id="customer-reviews">
+  <div class="section-head"><div><div class="eyebrow">REAL BUYERS. REAL FEEDBACK.</div><h2>LOVED BY GAMERS & COLLECTORS.</h2><div class="muted" style="font-size:12px">A selection of customer reviews from our Shopee store.</div></div></div>
+  <div class="reviews-summary">
+    <div><div class="reviews-score">4.9<span style="font-size:19px;font-weight:700"> / 5</span></div><div class="reviews-stars">★★★★★</div><small>Overall Shopee store rating</small></div>
+    <div><div style="font-size:28px;font-weight:900">1,004</div><small>Total ratings</small></div>
+    <div><div style="font-size:28px;font-weight:900">956</div><small>Five-star ratings</small></div>
+  </div>
+  <div class="review-grid">
+    <article class="review-card"><div class="review-stars">★★★★★</div><div class="review-product">Uncharted Double Pack · PS3</div><p>“The Uncharted Dual Pack is definitely the best bang for your buck if you are a huge fan of the new Uncharted games but have never even played the first two games yet and also perfect for fans of the Tomb Raider games. If you have a PlayStation 3, I highly recommend playing the Uncharted games.”</p><p>“You get to buy two Uncharted games for the price of one, and even the discs are just sparkly clean.”</p><div class="review-by">ronnpaolomaigue · October 12, 2026</div></article>
+    <article class="review-card"><div class="review-stars">★★★★★</div><div class="review-product">The Incredible Hulk · PS3</div><p>“Works really well! Clean disc almost brand new, thank you”</p><div class="review-by">ubejr · October 9, 2026</div></article>
+    <article class="review-card"><div class="review-stars">★★★★★</div><div class="review-product">Original PlayStation 3 DualShock 3</div><p>“The controller feels solid. Buttons are crisp. Genuine Ps3 controller. I already did some customization and it looks better.”</p><p>“All buttons and the six axis work perfectly.”</p><div class="review-by">adriennez · October 8, 2026</div></article>
+    <article class="review-card"><div class="review-stars">★★★★★</div><div class="review-product">Clock Tower 3 · PS2</div><p>“Seller has assisted me well and provided timely updates on the wrapping and securing the item. Item works perfectly. Thank you so much”</p><div class="review-by">naoshiii · September 24, 2026</div></article>
+    <article class="review-card"><div class="review-stars">★★★★★</div><div class="review-product">Original PlayStation 3 DualShock 3</div><p>“I tested it out on a game that needed motion controls, and the SIXAXIS works perfectly. Good product.”</p><div class="review-by">dylon.labrador.95 · September 22, 2026</div></article>
+    <article class="review-card"><div class="review-stars">★★★★★</div><div class="review-product">Metal Gear Solid V: The Phantom Pain</div><p>“The order arrived fast, and it's packed perfectly. It was raining today when it arrived, and the package got wet, but the game case itself is perfectly safe from the rain. The disc is also working perfectly with no issues so far. Thank you, seller!”</p><div class="review-by">vilhelmvoid · September 19, 2026</div></article>
+    <article class="review-card"><div class="review-stars">★★★★★</div><div class="review-product">Original DualShock PS2 Controller</div><p>“Magalang makahanap ng maayos na original dualshock 2 ngayon... pressure sensitive din sya.. maayos pa analogs. Naalagaan, thank you + free thumb stick cover”</p><div class="review-by">donellecunanan · September 16, 2026</div></article>
+    <article class="review-card"><div class="review-stars">★★★★★</div><div class="review-product">Earth Defense Force 2025 · PS3</div><p>“The product delivered was the correct size style design and colour. There are no visible signs of damages. Thank you to seller and delivery rider.”</p><div class="review-by">grayfox74 · September 16, 2026</div></article>
+    <article class="review-card"><div class="review-stars">★★★★★</div><div class="review-product">Original PlayStation 3 DualShock 3</div><p>“It works perfectly and is an original controller. Will buy again for a second controller”</p><div class="review-by">pumpkindelirious · August 11, 2026</div></article>
+    <article class="review-card"><div class="review-stars">★★★★★</div><div class="review-product">Spider-Man: Shattered Dimensions · PS3</div><p>“Another successful transaction. Maraming salamat po. Sa uulitin!!”</p><div class="review-by">zeratu2525 · June 11, 2026</div></article>
+  </div>
+  <div class="review-source">Customer comments reproduced from Shopee review screenshots. Store rating figures reflect the supplied Shopee rating screenshot.</div>
+</section>
+
 <section class="feature" id="vault"><div><div class="eyebrow">FOR THE LOVE OF THE CLASSICS</div><h2>WELCOME TO<br>THE COLLECTOR'S VAULT.</h2><p>Hunting for a nostalgic favorite or adding a rare title to your shelf? Explore a handpicked world of physical games, classic hardware and collector finds.</p><a class="btn" href="#shop">BROWSE THE VAULT ↗</a></div><img src="https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?auto=format&fit=crop&w=900&q=85" alt="Gaming collection"></section>
 <section class="section" id="about"><div class="eyebrow">ABOUT DASMA GAMEHUB</div><h2>MORE THAN JUST GAMES.</h2><p class="muted" style="max-width:650px">A home for gamers and collectors. From everyday favorites to retro treasures, DASMA GAMEHUB celebrates the joy of owning, playing and preserving video games.</p></section>
 </main>
